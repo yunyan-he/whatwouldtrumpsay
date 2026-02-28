@@ -1,30 +1,53 @@
-# What Would Trump Say? (WhatWouldTrumpSay)
+# What Would Trump Say? (WWTS)
 
-AI-powered prediction system for Donald Trump's statements and behaviors.
+**What Would Trump Say?** is an AI-powered prediction engine designed to simulate Donald Trump's potential reactions to current news events based on his historical rhetoric, sentiment patterns, and political targets.
 
-## Project Overview
+## 🚀 Project Overview
+The goal of this project is to build a RAG (Retrieval-Augmented Generation) system that uses historical data (2018-2021) to predict how Trump might respond to contemporary headlines.
 
-This project aims to predict Donald Trump's responses to current events based on historical data. It iteratively improves through a closed-loop system:
-1.  **Daily Big News** is fed into the system.
-2.  **AI Predicts** Trump's response (using RAG, Fine-tuning, and specialized Agents).
-3.  **Comparison** occurs when real statements emerge.
-4.  **Database Update** to close the feedback loop.
+## 🛠 Currently Completed: MVP Phase 1 (Data Pipeline)
+We have successfully completed the foundation of the project: the **Automated Data Pipeline for 2018 MVP**.
 
-## Key Features
+### 1. Data Acquisition
+- **Twitter Archive**: Processed historical tweets from 2018, filtering for high-engagement, original responses (excluding retweets).
+- **Global Events**: Scraped historical news data from Wikipedia to provide context for each specific date.
 
-- **Temporal Validation**: Predicts future responses using only historical context (Walk-Forward Testing).
-- **Multi-stage Tech Roadmap**: Starts with RAG, evolves to Fine-tuning and complex behavior Agents (LangGraph).
-- **Academic Rigor**: Focuses on dynamic personality modeling and political decision-making simulation.
+### 2. Data Alignment
+- Each tweet is automatically matched with a 24-hour window of global news events using `scripts/align_data.py`. This creates a dataset where the "Event" and the "Response" are linked with context.
 
-## Core Documentation
+### 3. AI Labeling & Analysis
+- Developed a labeling agent using **OpenRouter (Qwen/DeepSeek)** to analyze the raw data.
+- The agent extracts 5 key dimensions:
+    - **Event Description**: Concise event (same-day headline style, no retrospective bias).
+    - **Topic Tags**: e.g., "Inmigration", "Trade", "Media".
+    - **Sentiment**: Attack, Support, or Deflect (**Relative to the target**).
+    - **Target**: The specific entity or group mentioned.
+    - **Target Type**: Categorized as `individual`, `institution/media`, or `group/abstract`.
 
-- [Project Detailed Overview (项目全貌梳理)](docs/project_overview.md)
+### 4. Cloud Infrastructure
+- **Database**: Initialized a **Supabase Cloud (PostgreSQL)** instance with the `pgvector` extension for future RAG capabilities.
+- **Synchronization**: Implemented an idempotent upload script (`scripts/upload_to_supabase.py`) that handles deduplication and data updates seamlessly.
 
-## Disclaimer / 免责声明
+## 📂 Project Structure
+```bash
+.
+├── scripts/
+│   ├── process_tweets.py      # Filters raw CSV tweet data
+│   ├── acquire_news.py        # Scrapes data from Wikipedia
+│   ├── align_data.py          # Matches tweets with news context
+│   ├── labeling_agent.py      # AI analysis via OpenRouter
+│   └── upload_to_supabase.py  # Cloud synchronization
+├── supabase/
+│   └── schema.sql             # Database schema definitions
+├── docs/
+│   └── project_overview.md    # Detailed 6-point roadmap
+└── data/                      # (Git ignored) Local raw/processed data
+```
 
-**This project uses AI to predict hypothetical responses. AI-generated text is NOT an actual statement by Donald Trump.**
-本项目使用 AI 预测模型生成假设性回应，**AI 生成的内容不代表唐纳德·特朗普的真实言论**。
+## 📈 Next Steps
+- **RAG Implementation**: Build the backend using **FastAPI** to query the Supabase vector store.
+- **Prompt Engineering**: Refine the prediction model to match Trump's unique voice and tone.
+- **Full Dataset Expansion**: Scale the pipeline to include 2018-2021 data.
 
 ---
-
-*Open source for learning and technical exploration.*
+*Note: This project is for academic and technical research purposes focusing on NLP and pattern recognition.*
