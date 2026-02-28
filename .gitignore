@@ -1,0 +1,23 @@
+# General
+.DS_Store
+.env
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+
+# Data & DBs
+data/
+*.db
+*.sqlite
+chroma/
+
+# AI/ML
+models/
+checkpoint/
