@@ -37,6 +37,7 @@ def upload_data(json_file):
             "sentiment": entry.get("sentiment"),
             "target": entry.get("target"),
             "target_type": entry.get("target_type"),
+            "trigger_type": entry.get("trigger_type"),
             "actual_response": entry.get("tweet_text"),
             "phase": "2018_MVP"
         }

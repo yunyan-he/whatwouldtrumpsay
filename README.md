@@ -17,9 +17,10 @@ We have successfully completed the foundation of the project: the **Automated Da
 
 ### 3. AI Labeling & Analysis
 - Developed a labeling agent using **OpenRouter (Qwen/DeepSeek)** to analyze the raw data.
-- The agent extracts 5 key dimensions:
-    - **Event Description**: Concise event (same-day headline style, no retrospective bias).
-    - **Topic Tags**: e.g., "Inmigration", "Trade", "Media".
+- The agent extracts 6 key dimensions for **Narrative Alignment**:
+    - **Trigger Type**: Classified as `tactical_response` (event-driven), `strategic_narrative` (template-driven), or `personal_noise`.
+    - **Event/Narrative Description**: Either a same-day headline (tactical) or a recurring narrative context (strategic).
+    - **Topic Tags**: Narrative framework identifiers (e.g., "Witch Hunt", "Border Crisis").
     - **Sentiment**: Attack, Support, or Deflect (**Relative to the target**).
     - **Target**: The specific entity or group mentioned.
     - **Target Type**: Categorized as `individual`, `institution/media`, or `group/abstract`.

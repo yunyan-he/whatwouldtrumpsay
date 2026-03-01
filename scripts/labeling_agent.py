@@ -13,11 +13,17 @@ def label_entry(news_context, tweet_text):
     prompt = f"""
 You are an expert political analyst specializing in Donald Trump's rhetoric and behavior.
 Given the following news context and his subsequent tweet, identify:
-1. The specific event he is responding to. Describe the triggering event as it would reasonably appear in same-day news headlines, without retrospective interpretation.
-2. The topic tags (e.g., "Immigration", "Trade", "Media").
-3. The sentiment (attack, support, or deflect). Specific Definition: This must represent Trump's attitude towards the primary TARGET, not the event itself.
-4. The target of his statement (e.g., "Democrats", "China", "NYT").
-5. The target type. Choose exactly one: "individual", "institution/media", or "group/abstract".
+1. The trigger type. Choose exactly one:
+   - "tactical_response": Direct response to a specific news event from the last 24h.
+   - "strategic_narrative": Activating a long-term narrative/rhetorical template (e.g., "Witch Hunt", "Fake News") regardless of specific new developments.
+   - "personal_noise": Personal greetings, holiday wishes, or non-political content.
+2. The specific event or narrative description. 
+   - If tactical: Describe the triggering event (same-day headline style, no bias).
+   - If strategic: Describe the recurring narrative context (e.g., "Ongoing criticism of the Mueller investigation").
+3. The topic tags (e.g., "Immigration", "Trade", "Media").
+4. The sentiment (attack, support, or deflect) towards the primary TARGET.
+5. The target of his statement (e.g., "Democrats", "China", "NYT").
+6. The target type: "individual", "institution/media", or "group/abstract".
 
 News Context:
 {news_context}
@@ -27,6 +33,7 @@ Trump's Tweet:
 
 Output in STRICT JSON format:
 {{
+  "trigger_type": "...",
   "event_description": "...",
   "topic_tags": ["...", "..."],
   "sentiment": "...",
@@ -76,8 +83,9 @@ def process_labeling(input_json, output_json, limit=20):
     
     success_count = 0
     for i, entry in enumerate(to_process):
-        tweet_preview = entry['tweet_text'][:60].replace('\n', ' ') + "..."
-        print(f"[{i+1}/{len(to_process)}] Processing Tweet: {tweet_preview}")
+        # Remove truncation for full visibility
+        print(f"[{i+1}/{len(to_process)}] Processing Tweet:")
+        print(f"  > {entry['tweet_text'].strip()}")
         
         result = label_entry(entry['news_context'], entry['tweet_text'])
         
@@ -85,10 +93,12 @@ def process_labeling(input_json, output_json, limit=20):
             entry.update(result)
             labeled_data.append(entry)
             success_count += 1
-            print(f"  ✅ Success: {result.get('event_description', 'No event desc')[:50]}...")
-            print(f"     Tags: {result.get('topic_tags')} | Target: {result.get('target')}")
+            print(f"  ✅ Trigger: [{result.get('trigger_type')}]")
+            print(f"  ✅ Event:   {result.get('event_description')}")
+            print(f"     Tags:    {result.get('topic_tags')} | Target: {result.get('target')} ({result.get('target_type')})")
         else:
             print(f"  ❌ Failed to label this entry.")
+        print("-" * 20)
             
         if i < len(to_process) - 1:
             time.sleep(1) # Gentle rate limiting for free models

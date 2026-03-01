@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS trumpsay_mvp_2018 (
     sentiment TEXT, -- attack/support/deflect
     target TEXT, -- who or what is he responding to
     target_type TEXT, -- individual, institution/media, group/abstract
+    trigger_type TEXT, -- tactical_response, strategic_narrative, personal_noise
     predicted_response TEXT, -- Reserved for testing phase
     actual_response TEXT, -- Copy of original tweet text for convenience
     phase TEXT DEFAULT '2nd Term Prep/2018',
