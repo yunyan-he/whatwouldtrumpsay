@@ -35,10 +35,45 @@ CREATE TABLE IF NOT EXISTS trumpsay_mvp_2018 (
     trigger_type TEXT, -- tactical_response, strategic_narrative, personal_noise
     predicted_response TEXT, -- Reserved for testing phase
     actual_response TEXT, -- Copy of original tweet text for convenience
+    embedding vector(1536), -- For RAG retrieval (e.g., text-embedding-3-small)
     phase TEXT DEFAULT '2nd Term Prep/2018',
     is_verified BOOLEAN DEFAULT FALSE, -- Manual check flag
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Function for cosine similarity search
+-- Note: we use <=> for cosine distance, so 1 - (A <=> B) is cosine similarity
+CREATE OR REPLACE FUNCTION match_events (
+  query_embedding vector(1536),
+  match_threshold float,
+  match_count int,
+  query_date date
+)
+RETURNS TABLE (
+  id int,
+  event_description text,
+  actual_response text,
+  topic_tags text[],
+  similarity float
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    trumpsay_mvp_2018.id,
+    trumpsay_mvp_2018.event_description,
+    trumpsay_mvp_2018.actual_response,
+    trumpsay_mvp_2018.topic_tags,
+    1 - (trumpsay_mvp_2018.embedding <=> query_embedding) AS similarity
+  FROM trumpsay_mvp_2018
+  JOIN daily_news ON trumpsay_mvp_2018.news_id = daily_news.id
+  WHERE daily_news.event_date < query_date
+    AND 1 - (trumpsay_mvp_2018.embedding <=> query_embedding) > match_threshold
+  ORDER BY similarity DESC
+  LIMIT match_count;
+END;
+$$;
 
 -- Indices for faster lookup
 CREATE INDEX idx_raw_tweets_date ON raw_tweets(tweet_date);

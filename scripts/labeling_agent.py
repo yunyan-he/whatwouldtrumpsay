@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 LLM_API_KEY = os.getenv("LLM_API_KEY")
-MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-chat")
+MODEL = os.getenv("LLM_MODEL") # Set this in .env (e.g., arcee-ai/trinity-large-preview:free)
 
 def label_entry(news_context, tweet_text):
     prompt = f"""
@@ -102,6 +102,12 @@ def process_labeling(input_json, output_json, limit=20):
             
         if i < len(to_process) - 1:
             time.sleep(1) # Gentle rate limiting for free models
+            
+        # Incremental save every 5 entries
+        if (i + 1) % 5 == 0:
+            with open(output_json, 'w', encoding='utf-8') as f:
+                json.dump(labeled_data, f, ensure_ascii=False, indent=2)
+            print(f"  💾 Incremental save: {len(labeled_data)} entries.")
         
     print("-" * 50)
     with open(output_json, 'w', encoding='utf-8') as f:
@@ -115,4 +121,4 @@ if __name__ == "__main__":
         print("❌ Error: Please set LLM_API_KEY in .env")
     else:
         # Increase limit or adjust as needed
-        process_labeling("data/aligned_raw_mvp.json", "data/labeled_mvp_2018.json", limit=20)
+        process_labeling("data/aligned_raw_mvp.json", "data/labeled_mvp_2018.json", limit=150)
