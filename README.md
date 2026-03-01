@@ -5,8 +5,8 @@
 ## 🚀 Project Overview
 The goal of this project is to build a RAG (Retrieval-Augmented Generation) system that uses historical data (2018-2021) to predict how Trump might respond to contemporary headlines.
 
-## 🛠 Currently Completed: MVP Phase 1 (Data Pipeline)
-We have successfully completed the foundation of the project: the **Automated Data Pipeline for 2018 MVP**.
+## 🛠 Currently Completed: v2 RAG Implementation
+We have successfully implemented the **RAG (Retrieval-Augmented Generation) Loop** for the 2018 MVP.
 
 ### 1. Data Acquisition
 - **Twitter Archive**: Processed historical tweets from 2018, filtering for high-engagement, original responses (excluding retweets).
@@ -25,9 +25,27 @@ We have successfully completed the foundation of the project: the **Automated Da
     - **Target**: The specific entity or group mentioned.
     - **Target Type**: Categorized as `individual`, `institution/media`, or `group/abstract`.
 
-### 4. Cloud Infrastructure
-- **Database**: Initialized a **Supabase Cloud (PostgreSQL)** instance with the `pgvector` extension for future RAG capabilities.
-- **Synchronization**: Implemented an idempotent upload script (`scripts/upload_to_supabase.py`) that handles deduplication and data updates seamlessly.
+### 4. RAG Implementation (v2)
+- **Vector Retrieval**: Implemented a FastAPI backend (`main.py`) that queries a **Supabase (pgvector)** store with 1536-dimensional OpenAI embeddings.
+- **Time Isolation**: Strict retrieval logic (`WHERE event_date < query_date`) ensures the model only "remembers" the past.
+- **Blind Test**: Validated on 50 reserved entries with an automated evaluation scoring **7.0/10** for rhetorical fidelity.
+
+## 📂 Data Directory Map
+| File | Category | Status | Purpose |
+| :--- | :--- | :--- | :--- |
+| `raw_tweets.csv` | Raw | Permanent | Original source. |
+| `wikipedia_2018_events.csv` | Raw | Permanent | Scraped news context. |
+| `aligned_raw_mvp.json` | Intermediate | **Obsolete** | Replaced by `labeled_mvp_2018.json`. |
+| `labeled_mvp_2018.json` | Foundation | **Active** | Labeled "Golden Dataset" (Jan-Sep). |
+| `embedded_mvp_2018.json` | Snapshot | **Active** | Vectors currently in Supabase. |
+| `test_labeled_2018.json` | Testing | Active | Ground truth for Oct-Dec 2018. |
+| `simulation_results_2018.json` | Results | Active | Predictions from the blind test. |
+
+## 🔄 RAG Workflow (v2)
+Compared to v1, the v2 workflow adds a full architectural loop:
+1. **Narrative Matching**: Classifying events into `strategic_narrative` vs `tactical_response`.
+2. **Context Injection**: Top-3 relevant historical events are retrieved and fed into the prompt.
+3. **Style Fidelity**: The system prompt ensures the LLM adopts a specific rhetorical persona based on the retrieved context.
 
 ## 📂 Project Structure
 ```bash
@@ -46,9 +64,9 @@ We have successfully completed the foundation of the project: the **Automated Da
 ```
 
 ## 📈 Next Steps
-- **RAG Implementation**: Build the backend using **FastAPI** to query the Supabase vector store.
-- **Prompt Engineering**: Refine the prediction model to match Trump's unique voice and tone.
-- **Full Dataset Expansion**: Scale the pipeline to include 2018-2021 data.
+- **Web UI**: Build a frontend for users to interact with the prediction engine.
+- **Full Dataset Expansion**: Scale the pipeline to include 2019-2021 data.
+- **Narrative Refinement**: Further tune the "Strategic Narrative" templates to capture long-term rhetorical shifts.
 
 ---
 *Note: This project is for academic and technical research purposes focusing on NLP and pattern recognition.*
